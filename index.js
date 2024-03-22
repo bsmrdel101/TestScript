@@ -1,9 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => onLoad());
-
 const onLoad = () => {
   const input = document.querySelector('textarea');
   document.getElementById('run-btn').addEventListener('click', () => runInterpreter(input.value));
 };
+
+
+const BUILT_IN_KEYWORDS = ['print', 'var'];
+const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+const variables = [];
 
 const runInterpreter = (script) => {
   const lexedScript = tokenize(script);
@@ -11,6 +15,7 @@ const runInterpreter = (script) => {
     console.error(lexedScript.error);
     return;
   }
+  console.log('TOKENS: ', lexedScript.tokens);
   parse(lexedScript.tokens);
 };
 
@@ -18,8 +23,6 @@ const tokenize = (script) => {
   const tokens = [];
   let i = 0;
   const length = script.length;
-  const BUILT_IN_KEYWORDS = ['print'];
-  const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 
   while (i < length) {
     const currentChar = script[i];
@@ -35,17 +38,10 @@ const tokenize = (script) => {
         i++;
       }
 
-      if (script[i] !== '"') {
-        return {
-          error: `String is missing ending "`
-        };
-      }
+      if (script[i] !== '"') return { error: `String is missing ending "` };
       i++;
 
-      tokens.push({
-        type: 'string',
-        value: res
-      });
+      tokens.push({ type: 'string', value: res });
     } else if (varChars.includes(currentChar)) {
       let res = currentChar;
       i++;
@@ -55,16 +51,18 @@ const tokenize = (script) => {
         i++;
       }
 
-      if (!BUILT_IN_KEYWORDS.includes(res)) {
-        return {
-          error: `Unexpected token ${res}`
-        };
+      if (res === 'var') {
+        let variable = '';
+        while (varChars.includes(script[i + 1]) && i < length) {
+          variable += script[i + 1];
+          i++;
+        }
+        console.log(variable);
+        continue;
       }
-
-      tokens.push({
-        type: 'keyword',
-        value: res
-      });
+      if (!BUILT_IN_KEYWORDS.includes(res)) return { error: `Unexpected token ${res}` };
+      
+      tokens.push({ type: 'keyword', value: res });
     } else {
       return {
         error: `Unexpected character ${script[i]}`
@@ -85,15 +83,18 @@ const parse = (tokens) => {
   while (i < length) {
     const token = tokens[i];
     if (token.type === 'keyword' && token.value === 'print') {
-      if (!tokens[i + 1]) return console.error("Unexpected end of line, expected string");
+      if (!tokens[i + 1]) {
+        return console.error("Unexpected end of line, expected string");
+      } else {
+        printCmd(tokens, i);
+      }
     }
 
-    let isString = tokens[i + 1].type === 'string';
-    if (!isString) {
-      return console.log(`Unexpected token ${tokens[i + 1].type}, expected string`);
+    if (token.type === 'keyword' && token.value === 'var') {
+      
     }
 
-    console.log(tokens[i + 1].value)
+
     i += 2
   }
 };
