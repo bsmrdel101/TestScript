@@ -6,6 +6,10 @@ const onLoad = () => {
 };
 
 const runInterpreter = (script) => {
+  // TEMP
+  // script = `print "hello world"
+  // print "hello again"`;
+
   const lexedScript = tokenize(script);
   console.log(lexedScript.tokens);
 };
@@ -63,15 +67,15 @@ const tokenize = (script) => {
       });
     } else {
       return {
-        error: `Unexpected character ${this.codes[pos]}`
+        error: `Unexpected character ${script[i]}`
       };
     }
-
-    return {
-      error: false,
-      tokens
-    };
   }
+
+  return {
+    error: false,
+    tokens
+  };
 };
 
 const parse = (tokens) => {
