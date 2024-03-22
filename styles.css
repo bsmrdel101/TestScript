@@ -5,8 +5,15 @@
 body {
   background-color: rgb(52, 45, 45);
   color: white;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+h1 {
+  color: rgb(161, 102, 229);
 }
 
 textarea {
   resize: none;
+  background-color: rgb(139, 131, 131);
 }
