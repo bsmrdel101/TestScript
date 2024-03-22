@@ -6,12 +6,12 @@ const onLoad = () => {
 };
 
 const runInterpreter = (script) => {
-  // TEMP
-  // script = `print "hello world"
-  // print "hello again"`;
-
   const lexedScript = tokenize(script);
-  console.log(lexedScript.tokens);
+  if (lexedScript.error) {
+    console.error(lexedScript.error);
+    return;
+  }
+  execute(lexedScript.tokens);
 };
 
 const tokenize = (script) => {
@@ -37,7 +37,7 @@ const tokenize = (script) => {
 
       if (script[i] !== '"') {
         return {
-          error: `Unterminated string`
+          error: `String is missing ending "`
         };
       }
       i++;
@@ -80,4 +80,10 @@ const tokenize = (script) => {
 
 const parse = (tokens) => {
 
+};
+
+const execute = (code) => {
+  code.forEach((token) => {
+    console.log(token);
+  });
 };
