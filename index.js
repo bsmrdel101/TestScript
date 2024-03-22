@@ -11,7 +11,7 @@ const runInterpreter = (script) => {
     console.error(lexedScript.error);
     return;
   }
-  execute(lexedScript.tokens);
+  parse(lexedScript.tokens);
 };
 
 const tokenize = (script) => {
@@ -79,11 +79,21 @@ const tokenize = (script) => {
 };
 
 const parse = (tokens) => {
+  const length = tokens.length;
+  let i = 0;
 
-};
+  while (i < length) {
+    const token = tokens[i];
+    if (token.type === 'keyword' && token.value === 'print') {
+      if (!tokens[i + 1]) return console.error("Unexpected end of line, expected string");
+    }
 
-const execute = (code) => {
-  code.forEach((token) => {
-    console.log(token);
-  });
+    let isString = tokens[i + 1].type === 'string';
+    if (!isString) {
+      return console.log(`Unexpected token ${tokens[i + 1].type}, expected string`);
+    }
+
+    console.log(tokens[i + 1].value)
+    i += 2
+  }
 };
