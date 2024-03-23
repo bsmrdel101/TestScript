@@ -1,5 +1,6 @@
 import { Token } from "./types.ts";
 import { scripts } from "./script.ts";
+import { parser } from "./parser.ts";
 
 const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 const KEYWORDS: Record<string, string> = {
@@ -22,12 +23,18 @@ const isSkippable = (str: string) => {
 
 const lexer = (scripts: string[]) => {
   scripts.forEach((script: string) => {
-    const { error, tokens } = toxenize(script);
-    if (error) {
-      console.error(error);
+    const tokenizeRes = toxenize(script);
+    if (tokenizeRes.error) {
+      console.error(tokenizeRes.error);
       return;
     }
-    console.log(tokens);
+    
+    const parserRes = parser(tokenizeRes.tokens as Token[]);
+    if (parserRes.error) {
+      console.error(parserRes.error);
+      return;
+    }
+    console.log(parserRes.programs);
   });
 };
 
@@ -91,6 +98,5 @@ const toxenize = (script: string) => {
   }
   return { error: false, tokens };
 };
-
 
 lexer(scripts);
