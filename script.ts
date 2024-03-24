@@ -2,7 +2,8 @@ export const scripts: string[] = [];
 
 scripts.push(`
   var name = "BEAN";
-  print "My name is"
+  var num;
+  print "My name is";
   print name;
 
   print (1 + 1 * (4 - 3)) * 4 / 2;
