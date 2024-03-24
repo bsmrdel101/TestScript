@@ -12,7 +12,7 @@ scripts.push(`
   var num2 = 7 * 3 + 2;
   print num1 + num2;
 
-  if (num1 > 10) {
-    print "num1 is bigger";    
+  if (num1 > (10 + 5)) {
+    print "num1 is bigger";
   }
 `);

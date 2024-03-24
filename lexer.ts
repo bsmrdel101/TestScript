@@ -19,8 +19,20 @@ const isInt = (value: string) => {
   return x === 0 || x && !isNaN(x);
 };
 
-const isSkippable = (str: string) => {
+const isSkippable = (str: string): boolean => {
 	return str == ' ' || str == '\n' || str == '\t';
+};
+
+const isParenValid = (str: string): boolean => {
+  let openCount = 0;
+  let closeCount = 0;
+  const arr = str.split('');
+  if (arr.includes('{') || arr.includes('}')) return false;
+  arr.forEach((char) => {
+    if (char === '(') openCount += 1;
+    else if (char === ')') closeCount += 1; 
+  });
+  return openCount === closeCount;
 };
 
 const lexer = (scripts: string[]) => {
@@ -79,7 +91,28 @@ const toxenize = (script: string) => {
         
         const reserved = KEYWORDS[ident];
         if (reserved) {
-          tokens.push(token(reserved, ident));
+          if (reserved === 'If') {
+            while (isSkippable(src[0])) {
+              src.shift();
+            }
+            if (src.shift() !== '(') return { error: 'Missing opening "(" inside "if" statement' };
+            
+            let parenCount = 0;
+            let conditional = '';
+            while (src.length > 0 && (src[0] !== ')' || parenCount > 0)) {
+              if (src[0] === '(') parenCount += 1;
+              if (src[0] === ')') {
+                parenCount -= 1;
+              }
+              conditional += src.shift();
+            }
+            if (!isParenValid(conditional)) return { error: `Incorrect number of parentheses in "if" statement` };
+            src.shift();
+            tokens.push({ type: 'If', value: 'if' });
+            tokens.push({ type: 'Conditional', value: conditional });
+          } else {
+            tokens.push(token(reserved, ident));
+          }
         } else {
           tokens.push(token('Identifier', ident));
         }
@@ -105,7 +138,7 @@ const toxenize = (script: string) => {
           block += src.shift();
         }
         src.shift();
-        tokens.push({ type: 'Block', value: block });
+        tokens.push({ type: 'Block', value: block.trim() });
       } else {
         return { error: `Unreconized character: "${src[0]}"` };
       }
