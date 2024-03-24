@@ -5,7 +5,7 @@ export const parser = (tokens: Token[]) => {
   let currentStatement: Token[] = [];
 
   tokens.forEach((token: Token) => {
-    if (token.type === 'SemiColon' || token === tokens[tokens.length - 1]) {
+    if (token.type === 'SemiColon') {
       programs.push(parseStatement(currentStatement));
       currentStatement = [];
     } else {
@@ -96,11 +96,11 @@ export const evaluatePostfixExpression = (expression: Token[]) => {
     }
   }
 
-  if (!stack[0] && expression.length > 2) {
+  if (!stack[0]) {
     const vars: Token[] = [];
     const operators: Token[] = [];
     const newExpr = expression.map((token) => {
-      if (token.type === 'Identifier') {
+      if (token.type === 'Identifier' || token.type === 'Number') {
         vars.push(token);
       } else if (token.type === 'Operator') {
         operators.push(token);
