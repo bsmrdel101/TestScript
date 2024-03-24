@@ -1,6 +1,7 @@
 import { Token } from "./types.ts";
 import { scripts } from "./script.ts";
 import { parser } from "./parser.ts";
+import { interpreter } from "./interpreter.ts";
 
 const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 const KEYWORDS: Record<string, string> = {
@@ -34,7 +35,8 @@ const lexer = (scripts: string[]) => {
       console.error(parserRes.error);
       return;
     }
-    console.log(parserRes.programs);
+    
+    interpreter(parserRes.programs);
   });
 };
 
