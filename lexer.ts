@@ -7,6 +7,7 @@ const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_123456789
 const KEYWORDS: Record<string, string> = {
 	print: 'Print',
   var: 'Var',
+  if: 'If',
 };
 
 const token = (type: string, value = ""): Token => {
@@ -15,7 +16,7 @@ const token = (type: string, value = ""): Token => {
 
 const isInt = (value: string) => {
   const x = parseFloat(value);
-  return x && !isNaN(x);
+  return x === 0 || x && !isNaN(x);
 };
 
 const isSkippable = (str: string) => {
@@ -55,6 +56,10 @@ const toxenize = (script: string) => {
       tokens.push(token('Operator', src.shift()));
     } else if (char === '=') {
       tokens.push(token('Equals', src.shift()));
+    } else if (char === '>') {
+      tokens.push(token('GreaterThan', src.shift()));
+    } else if (char === '<') {
+      tokens.push(token('LessThan', src.shift()));
     } else if (char === ';') {
       tokens.push(token('SemiColon', src.shift()));
     } else {
@@ -93,11 +98,21 @@ const toxenize = (script: string) => {
         if (src.length === 0 && str[str.length - 1] !== '"') {
           return { error: `Expected end of string at: ${str}` };
         }
+      } else if (char === '{') {
+        src.shift();
+        let block = '';
+        while (src.length > 0 && src[0] !== '}') {
+          block += src.shift();
+        }
+        src.shift();
+        tokens.push({ type: 'Block', value: block });
       } else {
         return { error: `Unreconized character: "${src[0]}"` };
       }
     }
   }
+  console.log(tokens);
+  
   return { error: false, tokens };
 };
 

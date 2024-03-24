@@ -1,11 +1,11 @@
 import { Token } from "./types.ts";
 
-export const parser = (tokens: Token[]) => {
+export const parser = (tokens: Token[]) => {    
   const programs: any = [];
   let currentStatement: Token[] = [];
 
   tokens.forEach((token: Token) => {
-    if (token.type === 'SemiColon') {
+    if (token.type === 'SemiColon') {  
       programs.push(parseStatement(currentStatement));
       currentStatement = [];
     } else {

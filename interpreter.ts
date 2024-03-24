@@ -21,7 +21,7 @@ const runPrgm = (prgm: Token[]): Error => {
     case 'Var':
       return declareVar(prgm);
     default:
-      return { error: `Unknown keyword: "${prgm[0].type}"` };
+      return { error: `Unknown ${prgm[0].type}: "${prgm[0].value}"` };
   }
 };
 
