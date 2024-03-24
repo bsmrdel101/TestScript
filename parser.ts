@@ -5,7 +5,7 @@ export const parser = (tokens: Token[]) => {
   let currentStatement: Token[] = [];
 
   tokens.forEach((token: Token) => {
-    if (token.type === 'SemiColon') {
+    if (token.type === 'SemiColon' || token === tokens[tokens.length - 1]) {
       programs.push(parseStatement(currentStatement));
       currentStatement = [];
     } else {
@@ -25,10 +25,10 @@ const parseStatement = (tokens: Token[]) => {
 };
 
 const isMathExpression = (tokens: Token[]) => {
-  return tokens.some((token) => token.type === 'Operator' || token.type === 'OpenParen' || token.type === 'CloseParen');
+  return tokens.some((token) => token.type === 'Operator' || token.type === 'Number');
 };
 
-const parseMathExpression = (tokens: Token[]) => {
+export const parseMathExpression = (tokens: Token[]) => {
   const output: Token[] = [];
   const operators: string[] = [];
   const precedence = {
@@ -40,6 +40,8 @@ const parseMathExpression = (tokens: Token[]) => {
 
   for (const token of tokens) {
     if (token.type === 'Number') {
+      output.push(token);
+    } else if (token.type === 'Identifier') {
       output.push(token);
     } else if (token.type === 'Operator') {
       while (operators.length > 0 && precedence[operators[operators.length - 1]] >= precedence[token.value]) {
@@ -64,7 +66,7 @@ const parseMathExpression = (tokens: Token[]) => {
   return output;
 };
 
-const evaluatePostfixExpression = (expression: Token[]) => {
+export const evaluatePostfixExpression = (expression: Token[]) => {
   const output: Token[] = [];
   const stack: number[] = [];
 
@@ -93,5 +95,23 @@ const evaluatePostfixExpression = (expression: Token[]) => {
       output.push(token);
     }
   }
+
+  if (!stack[0] && expression.length > 2) {
+    const vars: Token[] = [];
+    const operators: Token[] = [];
+    const newExpr = expression.map((token) => {
+      if (token.type === 'Identifier') {
+        vars.push(token);
+      } else if (token.type === 'Operator') {
+        operators.push(token);
+      } else {
+        return token;
+      }
+      if (token === expression[expression.length - 1]) {
+        return { type: 'Expression', value: [...vars, ...operators] };
+      }
+    }).filter((t) => t);
+    return newExpr;
+  } 
   return [...output, { type: 'Number', value: stack.pop()?.toString() }];
 };

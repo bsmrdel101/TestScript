@@ -3,7 +3,7 @@ import { scripts } from "./script.ts";
 import { parser } from "./parser.ts";
 import { interpreter } from "./interpreter.ts";
 
-const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890';
 const KEYWORDS: Record<string, string> = {
 	print: 'Print',
   var: 'Var',
