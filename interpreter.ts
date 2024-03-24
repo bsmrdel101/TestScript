@@ -25,8 +25,10 @@ const runPrgm = (prgm: Token[]): Error => {
 };
 
 const handlePrint = (prgm: Token[]): Error => {
-  if (prgm.length > 2) return { error: `Expected semicolon after: "${prgm[1].value}"` };
-  console.log(prgm[1].value);
+  const val = prgm[1].value;
+  if (prgm.length > 2) return { error: `Expected semicolon after: "${val}"` };
+  const output = variables.get(val) ? variables.get(val) : val;
+  console.log(output);
   return { error: false };
 };
 
@@ -46,6 +48,5 @@ const declareVar = (prgm: Token[]): Error => {
       return { error: `Expected semicolon after: "${prgm[1].value}"` };
     }
   }
-  console.log(variables);
   return { error: false };
 };
