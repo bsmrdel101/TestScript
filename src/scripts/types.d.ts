@@ -30,6 +30,9 @@ type Token = {
   'Number' |
   'String' |
   'Identifier' |
+  'Params' |
+  'TriggerStart' |
+  'TriggerEnd' |
   'Equals' |
   'NotEqual' |
   'IsEqual' |

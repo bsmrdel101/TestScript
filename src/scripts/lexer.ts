@@ -12,6 +12,9 @@ const KEYWORDS: Record<string, 'Var' |
 'Number' |
 'String' |
 'Identifier' |
+'Params' |
+'TriggerStart' |
+'TriggerEnd' |
 'Equals' |
 'NotEqual' |
 'IsEqual' |
@@ -73,8 +76,13 @@ const isSkippable = (str: string): boolean => {
 
 const tokenize = (script: string): TokenList => {
   const tokens = new Array<Token>();
-  const src = script.split('');
 
+  const params = getParams(script);
+  const trigger = getTrigger(params.newScript);
+  tokens.push({ type: 'Params', value: params.value });
+  tokens.push(...trigger.tokens);
+
+  const src = trigger.newScript.split('');
   while (src.length > 0) {
     const char = src[0];
     if (char === '(') {
@@ -156,7 +164,7 @@ const tokenize = (script: string): TokenList => {
           }
         }
         if (src.length === 0 && str[str.length - 1] !== '"') {
-          return { error: `Expected end of string at: ${str}` };
+          return { error: `Expected end of string at: ${str.split(' ')[0]}` };
         }
       } else {
         return { error: `Unreconized character: "${src[0]}"` };
@@ -165,4 +173,12 @@ const tokenize = (script: string): TokenList => {
   }
     
   return { tokens: tokens };
+};
+
+const getParams = (script: string): { value: string, newScript: string } => {
+  return { value: '', newScript: script };
+};
+
+const getTrigger = (script: string): { tokens: Token[], newScript: string } => {
+  return { tokens: [], newScript: script };
 };
