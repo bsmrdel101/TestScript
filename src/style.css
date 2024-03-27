@@ -52,3 +52,8 @@ body {
 .cm-activeLineGutter {
   background-color: rgb(70, 70, 70) !important;
 }
+
+.run-btn {
+  margin-top: 0.5rem;
+  cursor: pointer;
+}

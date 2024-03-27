@@ -53,3 +53,8 @@ type Token = {
   'DivideEquals'
   value: string
 };
+
+interface TokenList {
+  tokens: Token[]
+  error?: string
+};
