@@ -1,5 +1,7 @@
 interface Program {
-  
+  params: Variable[]
+  trigger: Trigger
+  body: any[]
 }
 
 interface BinaryOperation {
@@ -20,6 +22,15 @@ interface Statement {
   body: any[]
 }
 
+type Trigger = {
+  name: string
+  subtTriggers: SubTrigger[]
+};
+
+type SubTrigger = {
+  name: string
+};
+
 type Variable = {
   name: string
   value: string | number | null | Variable
@@ -31,8 +42,7 @@ type Token = {
   'String' |
   'Identifier' |
   'Params' |
-  'TriggerStart' |
-  'TriggerEnd' |
+  'Trigger' |
   'Equals' |
   'NotEqual' |
   'IsEqual' |
@@ -52,6 +62,8 @@ type Token = {
   'Conjunction' |
   'Print' |
   'Semicolon' |
+  'Colon' |
+  'Comma' |
   'PlusEquals' |
   'MinusEquals' |
   'TimesEquals' |
@@ -63,5 +75,10 @@ type Token = {
 
 interface TokenList {
   tokens?: Token[]
-  error?: string
+  tokenError?: string
 };
+
+interface ParserReturn {
+  program?: Program
+  parserError?: string
+}

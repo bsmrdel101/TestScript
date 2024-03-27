@@ -3,7 +3,7 @@ import { basicSetup, EditorView } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { lexer } from './scripts/lexer';
 
-const template = 'params: target, roll;\n<onAtk:dealtByPlayer>\n\nvar num1 = 5;\nvar num2 = 10;\nprint num1 + (num2 - 5) * 8;';
+const template = 'params: target, roll;\n$onAtk:dealtByPlayer;\n\nvar num1 = 5;\nvar num2 = 10;\nprint num1 + (num2 - 5) * 8;';
 
 const editor = new EditorView({
   doc: template,

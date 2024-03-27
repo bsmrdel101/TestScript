@@ -1,10 +1,18 @@
+import { parser } from "./parser";
+
 export const lexer = (script: string) => {
-  const { tokens, error }: TokenList = tokenize(script);
-  if (error) {
-    console.error(error);
+  const { tokens, tokenError }: TokenList = tokenize(script);
+  if (tokenError) {
+    console.error(tokenError);
     return;
   }
-  console.log(tokens);
+  console.log('TOKENS: ', tokens);
+  const { program, parserError }: ParserReturn = parser(tokens as Token[]);
+  if (parserError) {
+    console.error(parserError);
+    return;
+  }
+  console.log('PROGRAM: ', program);
 };
 
 const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890';
@@ -13,8 +21,7 @@ const KEYWORDS: Record<string, 'Var' |
 'String' |
 'Identifier' |
 'Params' |
-'TriggerStart' |
-'TriggerEnd' |
+'Trigger' |
 'Equals' |
 'NotEqual' |
 'IsEqual' |
@@ -34,6 +41,8 @@ const KEYWORDS: Record<string, 'Var' |
 'Conjunction' |
 'Print' |
 'Semicolon' |
+'Colon' |
+'Comma' |
 'PlusEquals' |
 'MinusEquals' |
 'TimesEquals' |
@@ -44,7 +53,8 @@ const KEYWORDS: Record<string, 'Var' |
   var: 'Var',
   if: 'If',
   while: 'While',
-  shutdown: 'Shutdown'
+  shutdown: 'Shutdown',
+  params: 'Params',
 };
 
 const s = (value: string | undefined): string => value as string;
@@ -76,13 +86,8 @@ const isSkippable = (str: string): boolean => {
 
 const tokenize = (script: string): TokenList => {
   const tokens = new Array<Token>();
+  const src = script.split('');
 
-  const params = getParams(script);
-  const trigger = getTrigger(params.newScript);
-  tokens.push({ type: 'Params', value: params.value });
-  tokens.push(...trigger.tokens);
-
-  const src = trigger.newScript.split('');
   while (src.length > 0) {
     const char = src[0];
     if (char === '(') {
@@ -124,8 +129,14 @@ const tokenize = (script: string): TokenList => {
       } else {
         tokens.push({ type: 'LessThan', value: s(src.shift()) });
       }
+    } else if (char === '$') {
+      tokens.push({ type: 'Trigger', value: s(src.shift()) });
     } else if (char === ';') {
       tokens.push({ type: 'Semicolon', value: s(src.shift()) });
+    } else if (char === ':') {
+      tokens.push({ type: 'Colon', value: s(src.shift()) });
+    } else if (char === ',') {
+      tokens.push({ type: 'Comma', value: s(src.shift()) });
     } else if (char === '{') {
       tokens.push({ type: 'LBrace', value: s(src.shift()) });
     } else if (char === '}') {
@@ -164,21 +175,13 @@ const tokenize = (script: string): TokenList => {
           }
         }
         if (src.length === 0 && str[str.length - 1] !== '"') {
-          return { error: `Expected end of string at: ${str.split(' ')[0]}` };
+          return { tokenError: `Expected end of string at: ${str.split(' ')[0]}` };
         }
       } else {
-        return { error: `Unreconized character: "${src[0]}"` };
+        return { tokenError: `Unreconized character: "${src[0]}"` };
       }
     }
   }
     
   return { tokens: tokens };
-};
-
-const getParams = (script: string): { value: string, newScript: string } => {
-  return { value: '', newScript: script };
-};
-
-const getTrigger = (script: string): { tokens: Token[], newScript: string } => {
-  return { tokens: [], newScript: script };
 };
