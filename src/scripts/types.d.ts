@@ -31,6 +31,8 @@ type Token = {
   'String' |
   'Identifier' |
   'Equals' |
+  'NotEqual' |
+  'IsEqual' |
   'Operator' |
   'LessThan' |
   'GreaterThan' |
@@ -50,11 +52,13 @@ type Token = {
   'PlusEquals' |
   'MinusEquals' |
   'TimesEquals' |
-  'DivideEquals'
+  'DivideEquals' |
+  'Exclamation' |
+  'Shutdown'
   value: string
 };
 
 interface TokenList {
-  tokens: Token[]
+  tokens?: Token[]
   error?: string
 };
