@@ -1,13 +1,13 @@
 import './style.css';
+import { basicSetup, EditorView } from "codemirror";
+import { javascript } from "@codemirror/lang-javascript";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`;
+const template = 'var num1 = 5;\nvar num2 = 10;\nvar print num1 + num2;';
+
+const editor = new EditorView({
+  doc: template,
+  extensions: [basicSetup, javascript()],
+  parent: document.body
+});
+
+document.getElementById('app')!.appendChild(editor.dom);

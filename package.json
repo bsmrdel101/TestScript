@@ -11,5 +11,9 @@
   "devDependencies": {
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.2",
+    "codemirror": "^6.0.1"
   }
 }
