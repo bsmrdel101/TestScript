@@ -70,6 +70,7 @@ const parseVar = (tokensList: Token[]): any => {
 
 const parsePrint = (tokensList: Token[]): any => {
   tokensList.shift();
+  if (tokensList[0].type === 'Print') tokensList.shift();
   const value: any[] = [];
   let i = 0;
   while (i < tokensList.length) {
@@ -95,10 +96,14 @@ const parseIf = (tokensList: Token[], tokens: Token[]): any => {
   }
   tokensList.splice(0, i + 1);
   tokens.splice(0, i);  
-  i = 0;
+
+  let braceCount = 1;
+  i = 0;  
   while (i < tokensList.length) {
     const token = tokensList[i];
-    if (token.type === 'RBrace') break;
+    if (token.type === 'LBrace') braceCount += 1;
+    if (token.type === 'RBrace') braceCount -= 1;
+    if (braceCount === 0) break;
     value.push(token);
     i++;
   }
@@ -125,10 +130,13 @@ const parseElse = (tokensList: Token[], tokens: Token[]): any => {
     tokensList.splice(0, i + 1);
     tokens.splice(0, i + 1);
 
+    let braceCount = 1;
     i = 0;
     while (i < tokensList.length) {
       const token = tokensList[i];
-      if (token.type === 'RBrace') break;
+      if (token.type === 'LBrace') braceCount += 1;
+      if (token.type === 'RBrace') braceCount -= 1;
+      if (braceCount === 0) break;
       elseBody.push(token);
       i++;
     }
@@ -137,10 +145,13 @@ const parseElse = (tokensList: Token[], tokens: Token[]): any => {
     return { type: 'If', conditional: elseConditional, body: parser(elseBody).program?.body };
   } else {
     if (tokensList[0].type === 'LBrace') tokensList.shift();
+    let braceCount = 1;
     let i = 0;
     while (i < tokensList.length) {
       const token = tokensList[i];
-      if (token.type === 'RBrace') break;
+      if (token.type === 'LBrace') braceCount += 1;
+      if (token.type === 'RBrace') braceCount -= 1;
+      if (braceCount === 0) break;
       elseBody.push(token);
       i++;
     }
