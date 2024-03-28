@@ -21,8 +21,6 @@ export const parser = (tokens: Token[]): ParserReturn => {
       body.push(parseWhile(tokensList, tokens));
     }
   });
-  
-  console.log(tokensList);
   return { program: { params, trigger, body }};
 };
 

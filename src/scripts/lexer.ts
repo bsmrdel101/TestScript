@@ -1,3 +1,4 @@
+import { interpreter } from "./interpreter";
 import { parser } from "./parser";
 
 export const lexer = (script: string) => {
@@ -7,12 +8,19 @@ export const lexer = (script: string) => {
     return;
   }
   console.log('TOKENS: ', tokens);
+
   const { program, parserError }: ParserReturn = parser(tokens as Token[]);
   if (parserError) {
     console.error(parserError);
     return;
   }
   console.log('PROGRAM: ', program);
+
+  const { error }: { error: string } = interpreter(program as Program);
+  if (error) {
+    console.error(error);
+    return;
+  }
 };
 
 const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890';
