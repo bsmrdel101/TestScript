@@ -1,3 +1,4 @@
+import { addMacro } from "./addMacro";
 import { interpreter } from "./interpreter";
 import { parser } from "./parser";
 
@@ -16,11 +17,7 @@ export const lexer = (script: string) => {
   }
   console.log('PROGRAM: ', program);
 
-  const { error }: { error: string } = interpreter(program as Program);
-  if (error) {
-    console.error(error);
-    return;
-  }
+  addMacro(program as Program);
 };
 
 const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890';
