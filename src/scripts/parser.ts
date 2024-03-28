@@ -64,7 +64,7 @@ export const parser = (tokens: Token[]): ParserReturn => {
         i++;
       }
       tokensList.splice(0, i + 1);
-      tokens.splice(0, i + 1);
+      tokens.splice(0, i);
 
       i = 0;
       while (i < tokensList.length) {
@@ -80,9 +80,11 @@ export const parser = (tokens: Token[]): ParserReturn => {
       const elseBody: any[] = [];
       const elseConditional: any[] = [];
       tokensList.shift();
-      tokensList.shift();
+      if (tokensList[0].type === 'Else') tokensList.shift();
       
-      if (tokensList.shift()?.type === 'If') {
+      
+      if (tokensList[0].type === 'If') {
+        tokensList.shift();
         let i = 0;
         while (i < tokensList.length) {
           const token = tokensList[i];
@@ -104,6 +106,7 @@ export const parser = (tokens: Token[]): ParserReturn => {
         tokens.splice(0, i + 1);
         body.push({ type: 'If', conditional: elseConditional, body: parser(elseBody).program?.body });
       } else {
+        if (tokensList[0].type === 'LBrace') tokensList.shift();
         let i = 0;
         while (i < tokensList.length) {
           const token = tokensList[i];
