@@ -13,6 +13,9 @@ export const interpreter = (program: Program) => {
     } else if (stmt.type === 'Print') {
       const { error } = print(stmt.value);
       if (error) return error;
+    } else if (stmt.type === 'If') {
+      const { error } = ifStatement(stmt);
+      if (error) return error;
     }
   });
   return { error: false };
@@ -35,10 +38,33 @@ const print = (stmt: any) => {
   return { error: false };
 };
 
+const ifStatement = (stmt: any) => {
+  console.log(stmt);  
+  const conditional = parseConditional(stmt.conditional);
+  console.log(conditional);
+  return { error: false };
+};
+
 const parseValue = (token: any) => {
   if (isMathExpression(token as any)) {
     return parseMathExpression(token);
   } else {
     return token[0].value ? token[0].value : null;
   }
+};
+
+const parseConditional = (tokens: Token[]): Token[][] => {
+  const result: Token[][] = [];
+  let temp: Token[] = [];
+
+  tokens.forEach(token => {
+    if (token.type === 'LParen') {
+      temp = [];
+    } else if (token.type === 'RParen') {
+      result.push(temp);
+    } else {
+      temp.push(token);
+    }
+  });
+  return result;
 };
