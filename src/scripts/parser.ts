@@ -17,6 +17,8 @@ export const parser = (tokens: Token[]): ParserReturn => {
       body.push(parseIf(tokensList, tokens));
     } else if (token.type === 'Else') {
       body.push(parseElse(tokensList, tokens));
+    } else if (token.type === 'While') {
+      body.push(parseWhile(tokensList, tokens));
     }
   });
   
@@ -159,4 +161,33 @@ const parseElse = (tokensList: Token[], tokens: Token[]): any => {
     tokens.splice(0, i + 1);
     return { type: 'Else', body: parser(elseBody).program?.body };
   }
+};
+
+const parseWhile = (tokensList: Token[], tokens: Token[]): any => {
+  tokensList.shift();
+  const conditional: any[] = [];
+  const value: any[] = [];
+  let i = 0;
+  while (i < tokensList.length) {
+    const token = tokensList[i];
+    if (token.type === 'LBrace') break;
+    conditional.push(token);
+    i++;
+  }
+  tokensList.splice(0, i + 1);
+  tokens.splice(0, i);  
+
+  let braceCount = 1;
+  i = 0;  
+  while (i < tokensList.length) {
+    const token = tokensList[i];
+    if (token.type === 'LBrace') braceCount += 1;
+    if (token.type === 'RBrace') braceCount -= 1;
+    if (braceCount === 0) break;
+    value.push(token);
+    i++;
+  }
+  tokensList.splice(0, i);
+  tokens.splice(0, i);
+  return({ type: 'While', conditional: conditional, body: parser(value).program?.body });
 };
