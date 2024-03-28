@@ -64,6 +64,7 @@ export const parser = (tokens: Token[]): ParserReturn => {
         i++;
       }
       tokensList.splice(0, i + 1);
+      tokens.splice(0, i + 1);
 
       i = 0;
       while (i < tokensList.length) {
@@ -73,12 +74,14 @@ export const parser = (tokens: Token[]): ParserReturn => {
         i++;
       }
       tokensList.splice(0, i);
+      tokens.splice(0, i);
       body.push({ type: 'If', conditional: conditional, body: parser(value).program?.body });
     } else if (token.type === 'Else') {
       const elseBody: any[] = [];
       const elseConditional: any[] = [];
       tokensList.shift();
       tokensList.shift();
+      
       if (tokensList.shift()?.type === 'If') {
         let i = 0;
         while (i < tokensList.length) {
@@ -88,6 +91,17 @@ export const parser = (tokens: Token[]): ParserReturn => {
           i++;
         }
         tokensList.splice(0, i + 1);
+        tokens.splice(0, i + 1);
+
+        i = 0;
+        while (i < tokensList.length) {
+          const token = tokensList[i];
+          if (token.type === 'RBrace') break;
+          elseBody.push(token);
+          i++;
+        }
+        tokensList.splice(0, i + 1);
+        tokens.splice(0, i + 1);
         body.push({ type: 'If', conditional: elseConditional, body: parser(elseBody).program?.body });
       } else {
         let i = 0;
@@ -97,7 +111,8 @@ export const parser = (tokens: Token[]): ParserReturn => {
           elseBody.push(token);
           i++;
         }
-        tokensList.splice(0, i);
+        tokensList.splice(0, i + 1);
+        tokens.splice(0, i + 1);
         body.push({ type: 'Else', body: parser(elseBody).program?.body });
       }
     }
