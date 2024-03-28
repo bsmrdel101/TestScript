@@ -33,7 +33,7 @@ type SubTrigger = {
 
 type Variable = {
   name: string
-  value: string | number | null | Variable
+  value: any
 };
 
 type Token = {
