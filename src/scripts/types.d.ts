@@ -58,6 +58,7 @@ type Token = {
   'LBracket' |
   'RBracket' |
   'If' |
+  'Else' |
   'While' |
   'Conjunction' |
   'Print' |

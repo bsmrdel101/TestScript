@@ -37,6 +37,7 @@ const KEYWORDS: Record<string, 'Var' |
 'LBracket' |
 'RBracket' |
 'If' |
+'Else' |
 'While' |
 'Conjunction' |
 'Print' |
@@ -52,6 +53,7 @@ const KEYWORDS: Record<string, 'Var' |
   print: 'Print',
   var: 'Var',
   if: 'If',
+  else: 'Else',
   while: 'While',
   shutdown: 'Shutdown',
   params: 'Params',

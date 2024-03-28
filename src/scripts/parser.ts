@@ -40,6 +40,66 @@ export const parser = (tokens: Token[]): ParserReturn => {
       };
       _var.value = value;
       body.push({ type: 'Var', value: _var });
+    } else if (token.type === 'Print') {
+      tokensList.shift();
+      const value: any[] = [];
+      let i = 0;
+      while (i < tokensList.length) {
+        const token = tokensList[i];
+        if (token.type === 'Semicolon') break;
+        value.push(token);
+        i++;
+      }
+      tokensList.splice(0, i + 1);
+      body.push({ type: 'Print', value: value });
+    } else if (token.type === 'If') {
+      tokensList.shift();
+      const conditional: any[] = [];
+      const value: any[] = [];
+      let i = 0;
+      while (i < tokensList.length) {
+        const token = tokensList[i];
+        if (token.type === 'LBrace') break;
+        conditional.push(token);
+        i++;
+      }
+      tokensList.splice(0, i + 1);
+
+      i = 0;
+      while (i < tokensList.length) {
+        const token = tokensList[i];
+        if (token.type === 'RBrace') break;
+        value.push(token);
+        i++;
+      }
+      tokensList.splice(0, i);
+      body.push({ type: 'If', conditional: conditional, body: parser(value).program?.body });
+    } else if (token.type === 'Else') {
+      const elseBody: any[] = [];
+      const elseConditional: any[] = [];
+      tokensList.shift();
+      tokensList.shift();
+      if (tokensList.shift()?.type === 'If') {
+        let i = 0;
+        while (i < tokensList.length) {
+          const token = tokensList[i];
+          if (token.type === 'LBrace') break;
+          elseConditional.push(token);
+          i++;
+        }
+        tokensList.splice(0, i + 1);
+        body.push({ type: 'If', conditional: elseConditional, body: parser(elseBody).program?.body });
+      } else {
+        let i = 0;
+        while (i < tokensList.length) {
+          const token = tokensList[i];
+          if (token.type === 'RBrace') break;
+          elseBody.push(token);
+          i++;
+        }
+        tokensList.splice(0, i);
+        body.push({ type: 'Else', body: parser(elseBody).program?.body });
+      }
     }
   });
   console.log(tokensList);
