@@ -1,5 +1,5 @@
 interface Program {
-  params: Variable[]
+  params: string[]
   trigger: Trigger
   body: any[]
 }
