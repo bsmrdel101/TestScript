@@ -48,6 +48,8 @@ const ifStatement = (stmt: any) => {
 const parseValue = (token: any) => {
   if (isMathExpression(token as any)) {
     return parseMathExpression(token);
+  } else if (token.some((t: any) => t.type === 'Identifier')) {
+    return token.map((t: any) => getVar(t.value) as string)[0];
   } else {
     return token[0].value ? token[0].value : null;
   }
