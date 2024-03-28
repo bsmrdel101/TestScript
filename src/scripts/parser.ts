@@ -80,8 +80,7 @@ export const parser = (tokens: Token[]): ParserReturn => {
       const elseBody: any[] = [];
       const elseConditional: any[] = [];
       tokensList.shift();
-      if (tokensList[0].type === 'Else') tokensList.shift();
-      
+      if (tokensList[0].type === 'Else') tokensList.shift();      
       
       if (tokensList[0].type === 'If') {
         tokensList.shift();
@@ -118,6 +117,30 @@ export const parser = (tokens: Token[]): ParserReturn => {
         tokens.splice(0, i + 1);
         body.push({ type: 'Else', body: parser(elseBody).program?.body });
       }
+    } else if (token.type === 'While') {
+      tokensList.shift();
+      const conditional: any[] = [];
+      const value: any[] = [];
+      let i = 0;
+      while (i < tokensList.length) {
+          const token = tokensList[i];
+          if (token.type === 'LBrace') break;
+          conditional.push(token);
+          i++;
+      }
+      tokensList.splice(0, i + 1);
+      tokens.splice(0, i);
+    
+      i = 0;
+      while (i < tokensList.length) {
+          const token = tokensList[i];
+          if (token.type === 'RBrace') break;
+          value.push(token);
+          i++;
+      }
+      tokensList.splice(0, i + 1);
+      tokens.splice(0, i + 1);
+      body.push({ type: 'While', conditional: conditional, body: parser(value).program?.body });
     }
   });
   console.log(tokensList);
