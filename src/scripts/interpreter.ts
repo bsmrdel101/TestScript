@@ -42,7 +42,9 @@ const print = (stmt: any) => {
 
 const ifStatement = (stmt: any) => {
   console.log(stmt);
-  const conditional: boolean = isConditionalTrue(stmt.conditional);
+  console.log(stmt.conditional);
+  
+  const conditional = isConditionalTrue(stmt.conditional);
   console.log(conditional);
   return { error: false };
 };
@@ -57,71 +59,22 @@ const parseValue = (token: any) => {
   }
 };
 
-const isConditionalTrue = (tokens: Token[]): boolean => {
-  if (tokens.length === 1 && tokens[0].type === 'Boolean') {
-    return tokens[0].value as any;
-  }
-
-  let operatorIndex = -1;
-  for (let i = 0; i < tokens.length; i++) {
-    if (tokens.find(token => token.type === 'Conjunction')) {
-      operatorIndex = i;
-      break;
+const isConditionalTrue = (tokens: Token[]) => {
+  const arrays = [];
+  let currentArray: any = [];
+  tokens.shift();
+  tokens.pop();
+  tokens.forEach((token) => {
+    if (token.type === 'Conjunction' || token.type === 'LessThan' || token.type === 'LessThanEqual' || token.type === 'GreaterThan' || token.type === 'GreaterThanEqual' || token.type === 'IsEqual' || token.type === 'NotEqual') {
+        currentArray.push(token);
+        if (currentArray.length > 0) {
+        arrays.push(currentArray);
+        currentArray = [];
+      }
+    } else {
+      currentArray.push(token);
     }
-  }
-
-  tokens = tokens.map((token: Token) => {
-    if (token.type === 'Identifier') {
-      const _var = getVar(token.value);
-      const type = `${(typeof _var).charAt(0).toUpperCase()}${(typeof _var).split('').slice(1).join('')}`
-      return { type: type, value: _var } as any;
-    }
-    return token;
-  }).filter((t) => t.type !== 'LParen' && t.type !== 'RParen');
-  console.log(tokens);
-
-  if (operatorIndex === -1) {
-    return evaluateSimpleComparison(tokens);
-  }
-
-  const operatorToken = tokens.find(token => token.type === 'Conjunction');
-  if (!operatorToken) throw new Error('Invalid operator in conditional expression');
-  
-  const operator = operatorToken.value;
-  const leftTokens = tokens.slice(0, operatorIndex);
-  const rightTokens = tokens.slice(operatorIndex + 1);
-
-  switch (operator) {
-    case '&&':
-      return isConditionalTrue(leftTokens) && isConditionalTrue(rightTokens);
-    case '||':
-      return isConditionalTrue(leftTokens) || isConditionalTrue(rightTokens);
-    default:
-      throw new Error('Invalid conjunction/disjunction operator');
-  }
-};
-
-const evaluateSimpleComparison = (tokens: Token[]): boolean => {
-  const [left, operatorToken, right] = tokens;
-  if (!left || !operatorToken || !right) throw new Error('Invalid comparison expression');
-  let leftValue = left.value;
-  let rightValue = right.value;
-
-  const operator = operatorToken.type;
-  switch (operator) {
-    case 'IsEqual':
-      return leftValue === rightValue;
-    case 'NotEqual':
-      return leftValue !== rightValue;
-    case 'LessThan':
-      return leftValue < rightValue;
-    case 'LessThanEqual':
-      return leftValue <= rightValue;
-    case 'GreaterThan':
-      return leftValue > rightValue;
-    case 'GreaterThanEqual':
-      return leftValue >= rightValue;
-    default:
-      throw new Error(`Invalid operator in comparison expression: "${operator}"`);
-  }
+  });
+  if (currentArray.length > 0) arrays.push(isMathExpression(currentArray) ? parseMathExpression(currentArray) : currentArray); 
+  console.log(arrays);
 };

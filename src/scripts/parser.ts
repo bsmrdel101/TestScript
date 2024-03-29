@@ -83,21 +83,6 @@ const parsePrint = (tokensList: Token[]): any => {
   return { type: 'Print', value };
 };
 
-const parseConditional = (tokens: any[]): any[][] => {
-  const result: any[] = [];
-  let currentCondition: any[] = [];
-  for (const token of tokens) {
-    if (token.type === 'Conjunction' && token.value === '&&') {
-      result.push(currentCondition);
-      currentCondition = [];
-    } else {
-      currentCondition.push(token);
-    }
-  }
-  result.push(currentCondition);
-  return result[0];
-};
-
 const parseIf = (tokensList: Token[], tokens: Token[]): any => {
   tokensList.shift();
   let conditional: any[] = [];
@@ -109,7 +94,6 @@ const parseIf = (tokensList: Token[], tokens: Token[]): any => {
     conditional.push(token);
     i++;
   }
-  conditional = parseConditional(conditional);
   tokensList.splice(0, i + 1);
   tokens.splice(0, i);  
 
@@ -143,7 +127,6 @@ const parseElse = (tokensList: Token[], tokens: Token[]): any => {
       elseConditional.push(token);
       i++;
     }
-    elseConditional = parseConditional(elseConditional);
     tokensList.splice(0, i + 1);
     tokens.splice(0, i + 1);
 
@@ -189,7 +172,6 @@ const parseWhile = (tokensList: Token[], tokens: Token[]): any => {
     conditional.push(token);
     i++;
   }
-  conditional = parseConditional(conditional);
   tokensList.splice(0, i + 1);
   tokens.splice(0, i);  
 
