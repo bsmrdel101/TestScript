@@ -42,10 +42,9 @@ const print = (stmt: any) => {
 
 const ifStatement = (stmt: any) => {
   console.log(stmt);
-  console.log(stmt.conditional);
-  
-  const conditional = isConditionalTrue(stmt.conditional);
-  console.log(conditional);
+  const conditional = getConditionalStructure(stmt.conditional);
+  const result = isConditionalTrue(conditional);
+  console.log(conditional, result);
   return { error: false };
 };
 
@@ -59,15 +58,17 @@ const parseValue = (token: any) => {
   }
 };
 
-const isConditionalTrue = (tokens: Token[]) => {
+const isConditionalJoin = (token: Token) => token.type === 'Conjunction' || token.type === 'LessThan' || token.type === 'LessThanEqual' || token.type === 'GreaterThan' || token.type === 'GreaterThanEqual' || token.type === 'IsEqual' || token.type === 'NotEqual';
+
+const getConditionalStructure = (tokens: Token[]) => {
   const arrays = [];
   let currentArray: any = [];
   tokens.shift();
   tokens.pop();
   tokens.forEach((token) => {
-    if (token.type === 'Conjunction' || token.type === 'LessThan' || token.type === 'LessThanEqual' || token.type === 'GreaterThan' || token.type === 'GreaterThanEqual' || token.type === 'IsEqual' || token.type === 'NotEqual') {
-        currentArray.push(token);
-        if (currentArray.length > 0) {
+    if (isConditionalJoin(token)) {
+      currentArray.push(token);
+      if (currentArray.length > 0) {
         arrays.push(currentArray);
         currentArray = [];
       }
@@ -75,6 +76,15 @@ const isConditionalTrue = (tokens: Token[]) => {
       currentArray.push(token);
     }
   });
-  if (currentArray.length > 0) arrays.push(isMathExpression(currentArray) ? parseMathExpression(currentArray) : currentArray); 
-  console.log(arrays);
+  if (currentArray.length > 0) arrays.push(isMathExpression(currentArray) ? [{ type: 'Number', value: parseMathExpression(currentArray) }] : currentArray); 
+  return arrays;
+};
+
+const isConditionalTrue = (conditional: Token[][]) => {
+  for (let i = 0; i < conditional.length; i++) {
+    const condition: any = conditional[i];
+    const join = isConditionalJoin(condition[condition.length - 1]) ? condition.pop() : null;
+    console.log(condition, join);
+  }
+  return true;
 };
