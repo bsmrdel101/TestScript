@@ -77,9 +77,8 @@ const isConditionalTrue = (tokens: Token[]): boolean => {
       return { type: type, value: _var } as any;
     }
     return token;
-  });
+  }).filter((t) => t.type !== 'LParen' && t.type !== 'RParen');
   console.log(tokens);
-  
 
   if (operatorIndex === -1) {
     return evaluateSimpleComparison(tokens);
