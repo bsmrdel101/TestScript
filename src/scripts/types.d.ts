@@ -40,6 +40,7 @@ type Token = {
   type: 'Var' |
   'Number' |
   'String' |
+  'Boolean' |
   'Identifier' |
   'Params' |
   'Trigger' |

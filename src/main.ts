@@ -5,7 +5,7 @@ import { lexer } from './scripts/lexer';
 import { macros } from './scripts/addMacro';
 import { interpreter } from './scripts/interpreter';
 
-const template = 'params: target, roll;\n$onAtk:dealtByPlayer;\n\nvar num1 = 5;\nvar num2 = 10 + num1;\n\nprint num1 + (num2 - 5) * 8;\nprint "Hello World";\n\nif (num1 > 10) {\n  print "true";\n} else {\n  print "false";\n}';
+const template = 'params: target, roll;\n$onAtk:dealtByPlayer;\n\nvar num1 = 5;\nvar num2 = 10 + num1;\n\nprint num1 + (num2 - 5) * 8;\nprint "Hello World";\n\nif (num1 > ((10 + 5) * 2)) {\n  print "true";\n} else {\n  print "false";\n}';
 
 const editor = new EditorView({
   doc: template,

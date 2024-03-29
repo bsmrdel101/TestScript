@@ -1,5 +1,4 @@
 import { addMacro } from "./addMacro";
-import { interpreter } from "./interpreter";
 import { parser } from "./parser";
 
 export const lexer = (script: string) => {
@@ -24,6 +23,7 @@ const varChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_123456789
 const KEYWORDS: Record<string, 'Var' |
 'Number' |
 'String' |
+'Boolean' |
 'Identifier' |
 'Params' |
 'Trigger' |
@@ -62,6 +62,8 @@ const KEYWORDS: Record<string, 'Var' |
   while: 'While',
   shutdown: 'Shutdown',
   params: 'Params',
+  true: 'Boolean',
+  false: 'Boolean'
 };
 
 const s = (value: string | undefined): string => value as string;
