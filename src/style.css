@@ -46,11 +46,15 @@ body {
 }
 
 .cm-activeLine {
-  background-color: rgb(161, 161, 161) !important;
+  /* background-color: rgb(161, 161, 161) !important; */
 }
 
 .cm-activeLineGutter {
   background-color: rgb(70, 70, 70) !important;
+}
+
+.ͼ2 .cm-selectionBackground {
+  background-color: rgb(124, 166, 201) !important;
 }
 
 .save-btn {
