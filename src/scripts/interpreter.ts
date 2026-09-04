@@ -27,8 +27,6 @@ export class Interpreter {
   }
 
   private executeStatement(statement: Statement): void {
-    console.log(statement);
-    
     switch (statement.type) {
       case 'Var':
         this.executeVariable(statement);

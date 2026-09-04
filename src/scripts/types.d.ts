@@ -5,6 +5,7 @@ interface Program {
 
 interface EventHandler {
   trigger: Trigger
+  ctx: ObjectValue
   body: Statement[]
 }
 

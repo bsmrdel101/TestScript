@@ -220,13 +220,15 @@ class Parser {
     if (!isTrigger(trigger)) {
       throw new Error(`Unknown event trigger: ${trigger}`);
     }
+    
+    this.expect('LParen');
+    this.parseExpression();
+    this.expect('RParen');
 
+    const ctx = { player: { id: 1, name: 'BEAN', hp: 10 } };
     const body = this.parseBlock();
 
-    return {
-      trigger,
-      body
-    };
+    return { trigger, ctx, body };
   }
 
   private parseBlock(): Statement[] {
