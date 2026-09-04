@@ -1,90 +1,231 @@
-import { isMathExpression, parseMathExpression } from "./math";
-
-const variables = new Map<string, string | number | boolean | null>();
-export const getVar = (name: string) => variables.get(name);
+import { Environment } from "./environment";
 
 
-export const interpreter = (program: Program) => {
-  const { params, body } = program;
-  body.forEach((stmt) => {
-    if (stmt.type === 'Var') {
-      const { error } = declareVar(stmt.value);
-      if (error) return error;
-    } else if (stmt.type === 'Print') {
-      const { error } = print(stmt.value);
-      if (error) return error;
-    } else if (stmt.type === 'If') {
-      const { error } = ifStatement(stmt);
-      if (error) return error;
+export class Interpreter {
+  constructor(private readonly environment = new Environment()) {}
+
+  execute(program: Program): void {
+    for (const statement of program.statements) {
+      this.executeStatement(statement);
     }
-  });
-  return { error: false };
-};
 
-const declareVar = (stmt: any) => {
-  const value = parseValue(stmt.value);
-  if (stmt.value[0].type === 'Number' || stmt.value.length > 1) {
-    variables.set(stmt.name, Number(value));
-  } else if (stmt.value[0].type === 'Boolean') {
-    variables.set(stmt.name, Boolean(value));
-  } else {
-    variables.set(stmt.name, value);
-  }
-  console.log(getVar(stmt.name));
-  return { error: false };
-};
+    const onLoad = program.events.get('OnLoad');
 
-const print = (stmt: any) => {
-  const value = parseValue(stmt);
-  console.log('PRINT: ', value);
-  return { error: false };
-};
-
-const ifStatement = (stmt: any) => {
-  console.log(stmt);
-  const conditional = getConditionalStructure(stmt.conditional);
-  const result = isConditionalTrue(conditional);
-  console.log(conditional, result);
-  return { error: false };
-};
-
-const parseValue = (token: any) => {
-  if (isMathExpression(token as any)) {
-    return parseMathExpression(token);
-  } else if (token.some((t: any) => t.type === 'Identifier')) {
-    return token.map((t: any) => getVar(t.value) as string)[0];
-  } else {
-    return token[0].value ? token[0].value : null;
-  }
-};
-
-const isConditionalJoin = (token: Token) => token.type === 'Conjunction' || token.type === 'LessThan' || token.type === 'LessThanEqual' || token.type === 'GreaterThan' || token.type === 'GreaterThanEqual' || token.type === 'IsEqual' || token.type === 'NotEqual';
-
-const getConditionalStructure = (tokens: Token[]) => {
-  const arrays = [];
-  let currentArray: any = [];
-  tokens.shift();
-  tokens.pop();
-  tokens.forEach((token) => {
-    if (isConditionalJoin(token)) {
-      currentArray.push(token);
-      if (currentArray.length > 0) {
-        arrays.push(currentArray);
-        currentArray = [];
-      }
-    } else {
-      currentArray.push(token);
+    if (onLoad) {
+      this.executeBlock(onLoad.body);
     }
-  });
-  if (currentArray.length > 0) arrays.push(isMathExpression(currentArray) ? [{ type: 'Number', value: parseMathExpression(currentArray) }] : currentArray); 
-  return arrays;
-};
-
-const isConditionalTrue = (conditional: Token[][]) => {
-  for (let i = 0; i < conditional.length; i++) {
-    const condition: any = conditional[i];
-    const join = isConditionalJoin(condition[condition.length - 1]) ? condition.pop() : null;
-    console.log(condition, join);
   }
-  return true;
-};
+
+  trigger(program: Program, trigger: Trigger): void {
+    const event = program.events.get(trigger);
+
+    if (!event) {
+      return;
+    }
+
+    this.executeBlock(event.body);
+  }
+
+  private executeStatement(statement: Statement): void {
+    console.log(statement);
+    
+    switch (statement.type) {
+      case 'Var':
+        this.executeVariable(statement);
+        break;
+      case 'Print':
+        this.executePrint(statement);
+        break;
+      case 'If':
+        this.executeIf(statement);
+        break;
+      case 'While':
+        this.executeWhile(statement);
+        break;
+      case 'Assignment':
+        this.executeAssignment(statement);
+        break;
+    }
+  }
+
+  private executeVariable(statement: VariableDeclaration): void {
+    if (this.environment.has(statement.name)) {
+      throw new Error(`Variable "${statement.name}" is already declared`);
+    }
+
+    const value = this.evaluate(statement.value);
+    this.environment.set(statement.name, value);
+  }
+
+  private executePrint(statement: PrintStatement): void {
+    console.log(this.evaluate(statement.value));
+  }
+
+  private executeIf(statement: IfStatement): void {
+    if (this.boolean(this.evaluate(statement.conditional))) {
+      this.executeBlock(statement.body);
+      return;
+    }
+
+    if (statement.elseBody) {
+      this.executeBlock(statement.elseBody);
+    }
+  }
+
+  private executeWhile(statement: WhileStatement): void {
+    while (this.boolean(this.evaluate(statement.conditional))) {
+      this.executeBlock(statement.body);
+    }
+  }
+
+  private executeBlock(statements: Statement[]): void {
+    for (const statement of statements) {
+      this.executeStatement(statement);
+    }
+  }
+
+  private executeAssignment(statement: AssignmentStatement): void {
+    const current = this.environment.get(statement.name);
+    const value = this.evaluate(statement.value);
+
+    switch (statement.operator) {
+      case '=':
+        this.environment.set(statement.name, value);
+        break;
+      case '+=':
+        this.environment.set(
+          statement.name,
+          this.numeric(current) + this.numeric(value)
+        );
+        break;
+      case '-=':
+        this.environment.set(
+          statement.name,
+          this.numeric(current) - this.numeric(value)
+        );
+        break;
+      case '*=':
+        this.environment.set(
+          statement.name,
+          this.numeric(current) * this.numeric(value)
+        );
+        break;
+      case '/=':
+        this.environment.set(
+          statement.name,
+          this.numeric(current) / this.numeric(value)
+        );
+        break;
+    }
+  }
+
+  private evaluate(expression: Expression): Value {
+    switch (expression.type) {
+      case 'Literal':
+        return expression.value;
+      case 'Variable':
+        return this.environment.get(expression.name);
+      case 'BinaryExpression':
+        return this.evaluateBinary(expression);
+      case 'UnaryExpression':
+        return this.evaluateUnary(expression);
+      case 'ComparisonExpression':
+        return this.evaluateComparison(expression);
+      case 'LogicalExpression':
+        return this.evaluateLogical(expression);
+      case 'MemberExpression':
+        return this.evaluateMember(expression);
+      case 'CallExpression':
+        return this.evaluateCall(expression);
+    }
+  }
+
+  private evaluateBinary(expression: BinaryExpression): number {
+    const left = this.numeric(this.evaluate(expression.left));
+    const right = this.numeric(this.evaluate(expression.right));
+
+    switch (expression.operator) {
+      case '+':
+        return left + right;
+      case '-':
+        return left - right;
+      case '*':
+        return left * right;
+      case '/':
+        return left / right;
+      case '%':
+        return left % right;
+    }
+  }
+
+  private evaluateUnary(expression: UnaryExpression): Value {
+    const value = this.evaluate(expression.operand);
+
+    switch (expression.operator) {
+      case '!':
+        return !this.boolean(value);
+      case '-':
+        return -this.numeric(value);
+    }
+  }
+
+  private evaluateComparison(expression: ComparisonExpression): boolean {
+    const left = this.evaluate(expression.left);
+    const right = this.evaluate(expression.right);
+
+    switch (expression.operator) {
+      case '==':
+        return left === right;
+      case '!=':
+        return left !== right;
+      case '<':
+        return this.numeric(left) < this.numeric(right);
+      case '>':
+        return this.numeric(left) > this.numeric(right);
+      case '<=':
+        return this.numeric(left) <= this.numeric(right);
+      case '>=':
+        return this.numeric(left) >= this.numeric(right);
+    }
+  }
+
+  private evaluateLogical(expression: LogicalExpression): boolean {
+    const left = this.boolean(this.evaluate(expression.left));
+
+    if (expression.operator === '&&') {
+      if (!left) return false;
+      return this.boolean(this.evaluate(expression.right));
+    }
+
+    if (left) return true;
+    return this.boolean(this.evaluate(expression.right));
+  }
+
+  private evaluateMember(expression: MemberExpression): Value {
+    const object = this.evaluate(expression.object);
+
+    if (object === null || typeof object !== 'object') {
+      throw new Error(`Cannot access property "${expression.property}" on ${typeof object}`);
+    }
+
+    return object[expression.property] ?? null;
+  }
+
+  private evaluateCall(expression: CallExpression): Value {
+    throw new Error('Function calls are not implemented');
+  }
+
+  private numeric(value: Value): number {
+    if (typeof value !== 'number') {
+      throw new Error(`Expected number, got ${typeof value}`);
+    }
+    return value;
+  }
+
+  private boolean(value: Value): boolean {
+    if (typeof value !== 'boolean') {
+      throw new Error(`Expected boolean, got ${typeof value}`);
+    }
+    return value;
+  }
+}
